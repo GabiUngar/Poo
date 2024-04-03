@@ -1,81 +1,97 @@
 #include <iostream>
 #include <cstring>
+#include <vector>
+//Scrie nr de bani pe care vrei sa l schimbi si va parea in functie de moneda introdusa LEI/EURO/USD transformarea ei in alta moneda
 class Currency {
 private:
-    std::string nume; // Currency code (e.g., EUR, USD)
-    double cursvalutar; // Exchange rate against RON
+    std::string nume;
+    double cursvalutar;
 public:
-    Currency(std::string nume, double cursvalutar){
+    Currency(std::string nume, double cursvalutar) {
         this->nume = nume;
         this->cursvalutar = cursvalutar;
     }
-    // Function to convert from RON to this currency
-    double conversie(double lei) const {
+    double cumpara(double lei) {
         return lei / cursvalutar;
     }
-    // Function to convert from this currency to RON
-    double conversieInvers(double bani) const {
+
+    double vinde(double bani) {
         return bani * cursvalutar;
     }
-    // Getter for currency code
-    std::string getnume() const {
+
+    std::string getnume() {
         return nume;
     }
 };
 
-class Baniclient {
+class Client {
 private:
-    double suma; // Amount in RON
-    Currency currency; // Currency object
+    std::string nume;
+    double suma;
+    Currency currency;
 public:
-    Baniclient(double suma, const Currency& currency) : suma(suma), currency(currency) {}
+    Client(std::string nume, double suma, Currency& currency) : nume(nume), suma(suma), currency(currency) {}
 
-    // Function to convert the money to another currency
-    double tranzactie(const Currency& moneda) const {
-        return moneda.conversie(suma);
+    double tranzactie(Currency& moneda) {
+        return moneda.cumpara(suma);
     }
-
-    // Function to convert the money from another currency to RON
-    double tranzactieInvers(const Currency& moneda) const {
-        return moneda.conversieInvers(suma);
+    double tranzactieInvers(Currency& moneda) {
+        return moneda.vinde(suma);
     }
-
-    // Getter for amount in RON
-    double getbani() const {
+    double getbani() {
         return suma;
     }
-
-    // Getter for currency code
-    std::string getNumeMoneda() const {
+    std::string getmoneda() {
         return currency.getnume();
+    }
+    std::string getclient() {
+        return nume;
+    }
+};
+
+class ListaClienti {
+private:
+    std::vector<std::string> numec;
+public:
+    void adauga(const std::string& nume) {
+        numec.push_back(nume);
+    }
+    void afiseaza() {
+        std::cout << "Lista clienti:\n";
+        for (const auto& nume : numec) {
+            std::cout << nume << "\n";
+        }
     }
 };
 
 int main() {
-    Currency euro("eur", 5);
-    Currency usd("usd", 4.5);
-
-    // Input validation for the amount in RON
+    ListaClienti lista;
+    Currency euro("EUR", 4.97);
+    Currency usd("USD", 4.5);
     double lei;
     char moneda[10];
-    std::cout << "Nr bani:";
+    std::cout << "Nr bani pe care vrei sa-i schimbi:";
     std::cin >> lei;
     std::cout << "Moneda:";
     std::cin >> moneda;
-    Baniclient client(lei, euro); // Client's money in RO
-     if(strcmp("RON",moneda)==0){
-        // Convert the client's money to Euro
+    Client client("ANA", lei, euro);
+    Client client1("MARA",lei,usd);
+    lista.adauga(client.getclient());
+    lista.adauga(client1.getclient());
+
+    if (strcmp("RON", moneda) == 0) {
         double euro1 = client.tranzactie(euro);
         std::cout << lei << " RON = " << euro1 << " " << euro.getnume() << '\n';
-        // Convert the client's money to USD
         double usd1 = client.tranzactie(usd);
         std::cout << lei << " RON = " << usd1 << " " << usd.getnume() << '\n';
-     }
-     else
-     {
-        // Convert the client's money from Euro back to RON
+    }
+    else {
         double lei1 = client.tranzactieInvers(euro);
-        std::cout << lei1 << '\n';
-     }
+        std::cout << lei1 << " " << "RON" << '\n';
+        double lei2 = client.tranzactie(usd);
+        std::cout << lei << " " << "RON" << '\n';
+    }
+
+    lista.afiseaza();
     return 0;
 }
